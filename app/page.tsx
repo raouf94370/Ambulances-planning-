@@ -128,7 +128,8 @@ export default function Home() {
                     <div className="lane-body">
                       {["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00"].map(t=><div className="grid-line" key={t}/>)}
                       {items.map(t=>{
-                        const top = Math.max(0, (parseInt(t.time)-7*100)*1.02);
+                        const [hours, minutes] = t.time.split(":").map(Number);
+const top = Math.max(0, ((hours - 7) * 60 + minutes) * 1.02);
                         return <div className={`transport-card ${statusClass[t.status]}`} style={{top:`${top}px`}} key={t.id}>
                           <div className="transport-time">{t.time} <span>{t.type}</span></div>
                           <b>{t.patient}</b><div className="transport-route"><MapPin size={12}/>{t.origin} → {t.destination}</div>
