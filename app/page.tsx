@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import {
   Ambulance, Bell, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight,
   Clock3, Filter, LayoutDashboard, Menu, Plus, Search, Settings,
-  Stethoscope, Users, X, MapPin, Repeat2, AlertTriangle
+  Stethoscope, Users, X, MapPin, Repeat2, AlertTriangle, LucideIcon
 } from "lucide-react";
 
 type Status = "À planifier" | "Planifié" | "En route" | "Patient pris en charge" | "En attente" | "Terminé" | "Annulé";
@@ -50,8 +50,7 @@ export default function Home() {
     return matchesQ && (selectedStatus === "Tous" || t.status === selectedStatus);
   }), [transports, query, selectedStatus]);
 
-  const stats = [
-    ["Transports aujourd’hui", transports.length, CalendarDays],
+const stats: [string, number, LucideIcon][] = [    ["Transports aujourd’hui", transports.length, CalendarDays],
     ["En cours", transports.filter(t=>["En route","Patient pris en charge","En attente"].includes(t.status)).length, Clock3],
     ["Terminés", transports.filter(t=>t.status==="Terminé").length, CheckCircle2],
     ["À planifier", transports.filter(t=>t.status==="À planifier").length, AlertTriangle],
