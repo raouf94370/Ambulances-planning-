@@ -41,6 +41,7 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<Status | "Tous">("Tous");
   const [modal, setModal] = useState(false);
+  const [selectedTransport, setSelectedTransport] = useState<Transport | null>(null);
   const [mobileNav, setMobileNav] = useState(false);
   const [view, setView] = useState<"jour"|"semaine">("jour");
 
@@ -129,7 +130,7 @@ const stats: [string, number, LucideIcon][] = [    ["Transports aujourd’hui", 
                       {items.map(t=>{
                         const [hours, minutes] = t.time.split(":").map(Number);
 const top = Math.max(0, ((hours - 7) * 60 + minutes) * 1.02);
-                        return <div className={`transport-card ${statusClass[t.status]}`} style={{top:`${top}px`}} key={t.id}>
+                        return <div className={`transport-card ${statusClass[t.status]}`}  onClick={() => setSelectedTransport(t)} style={{top:`${top}px`}} key={t.id}>>
                           <div className="transport-time">{t.time} <span>{t.type}</span></div>
                           <b>{t.patient}</b><div className="transport-route"><MapPin size={12}/>{t.origin} → {t.destination}</div>
                           <div className="transport-footer"><span>{t.driver}</span><select value={t.status} onChange={e=>changeStatus(t.id,e.target.value as Status)}><option>{t.status}</option>{Object.keys(statusClass).filter(s=>s!==t.status).map(s=><option key={s}>{s}</option>)}</select></div>
@@ -156,7 +157,12 @@ const top = Math.max(0, ((hours - 7) * 60 + minutes) * 1.02);
       </section>
 
       {modal && <NewTransportModal onClose={()=>setModal(false)} onCreate={(t)=>{setTransports(ts=>[...ts,t]);setModal(false)}}/>}
-    </main>
+  {selectedTransport && (
+  <TransportDetailsModal
+    transport={selectedTransport}
+    onClose={() => setSelectedTransport(null)}
+  />
+)}  </main>
   );
 }
 
@@ -181,4 +187,64 @@ function NewTransportModal({onClose,onCreate}:{onClose:()=>void,onCreate:(t:Tran
     </div>
     <div className="modal-foot"><button className="secondary" onClick={onClose}>Annuler</button><button className="primary" disabled={!patient||!origin||!destination} onClick={()=>onCreate({id:`T-${Date.now().toString().slice(-4)}`,time,patient,origin,destination,ambulance,driver,status:"Planifié",type})}>Créer le transport</button></div>
   </div></div>
+}
+function TransportDetailsModal({
+  transport,
+  onClose,
+}: {
+  transport: Transport;
+  onClose: () => void;
+}) {
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-head">
+          <div>
+            <span className="eyebrow">TRANSPORT</span>
+            <h3>{transport.id}</h3>
+          </div>
+        </div>
+
+        <div className="form-grid">
+          <label>Patient
+            <input value={transport.patient} readOnly />
+          </label>
+
+          <label>Heure
+            <input value={transport.time} readOnly />
+          </label>
+
+          <label>Lieu de prise en charge
+            <input value={transport.origin} readOnly />
+          </label>
+
+          <label>Destination
+            <input value={transport.destination} readOnly />
+          </label>
+
+          <label>Ambulance
+            <input value={transport.ambulance} readOnly />
+          </label>
+
+          <label>Chauffeur
+            <input value={transport.driver} readOnly />
+          </label>
+
+          <label>Type
+            <input value={transport.type} readOnly />
+          </label>
+
+          <label>Statut
+            <input value={transport.status} readOnly />
+          </label>
+        </div>
+
+        <div className="modal-foot">
+          <button className="secondary" onClick={onClose}>
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
