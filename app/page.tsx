@@ -130,7 +130,7 @@ const stats: [string, number, LucideIcon][] = [    ["Transports aujourd’hui", 
                       {items.map(t=>{
                         const [hours, minutes] = t.time.split(":").map(Number);
 const top = Math.max(0, ((hours - 7) * 60 + minutes) * 1.02);
-                        return <div className={`transport-card ${statusClass[t.status]}`}  onClick={() => setSelectedTransport(t)} style={{top:`${top}px`}} key={t.id}>>
+                        return <div className={`transport-card ${statusClass[t.status]}`}  onClick={() => setSelectedTransport(t)} style={{top:`${top}px`}} key={t.id}>
                           <div className="transport-time">{t.time} <span>{t.type}</span></div>
                           <b>{t.patient}</b><div className="transport-route"><MapPin size={12}/>{t.origin} → {t.destination}</div>
                           <div className="transport-footer"><span>{t.driver}</span><select value={t.status} onChange={e=>changeStatus(t.id,e.target.value as Status)}><option>{t.status}</option>{Object.keys(statusClass).filter(s=>s!==t.status).map(s=><option key={s}>{s}</option>)}</select></div>
