@@ -1,0 +1,9 @@
+{
+  "name": "Ambulances Planning",
+  "short_name": "Ambulances",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#0f766e",
+  "lang": "fr-FR"
+}
