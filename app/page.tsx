@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Ambulance, Bell, CalendarDays, CheckCircle2, ChevronLeft,
   ChevronRight, Clock3, Filter, LayoutDashboard, Menu, Plus,
@@ -183,6 +183,35 @@ const initialTransports: Transport[] = [
   }
 ];
 
+const transportsStorageKey = "ambulances-planning-transports";
+
+function getStoredTransports(): Transport[] | null {
+  try {
+    const storedTransports = window.localStorage.getItem(
+      transportsStorageKey
+    );
+
+    if (!storedTransports) {
+      return null;
+    }
+
+    const transports: unknown = JSON.parse(storedTransports);
+
+    return Array.isArray(transports)
+      ? (transports as Transport[])
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function storeTransports(transports: Transport[]) {
+  window.localStorage.setItem(
+    transportsStorageKey,
+    JSON.stringify(transports)
+  );
+}
+
 const statusOptions: Status[] = [
   "À planifier",
   "Planifié",
@@ -223,6 +252,14 @@ export default function Home() {
 
   const [selectedDate, setSelectedDate] =
     useState(today);
+
+  useEffect(() => {
+    const storedTransports = getStoredTransports();
+
+    if (storedTransports) {
+      setTransports(storedTransports);
+    }
+  }, []);
 
   const visibleTransports = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -297,11 +334,14 @@ export default function Home() {
   ];
 
   function changeStatus(id: string, status: Status) {
-    setTransports((current) =>
-      current.map((t) =>
+    setTransports((current) => {
+      const updated = current.map((t) =>
         t.id === id ? { ...t, status } : t
-      )
-    );
+      );
+
+      storeTransports(updated);
+      return updated;
+    });
   }
 
   function openEdit(transport: Transport) {
@@ -310,21 +350,26 @@ export default function Home() {
   }
 
   function saveTransport(updated: Transport) {
-    setTransports((current) =>
-      current.map((t) =>
+    setTransports((current) => {
+      const transports = current.map((t) =>
         t.id === updated.id ? updated : t
-      )
-    );
+      );
+
+      storeTransports(transports);
+      return transports;
+    });
 
     setSelectedTransport(null);
     setFormMode(null);
   }
 
   function createTransport(transport: Transport) {
-    setTransports((current) => [
-      ...current,
-      transport
-    ]);
+    setTransports((current) => {
+      const transports = [...current, transport];
+
+      storeTransports(transports);
+      return transports;
+    });
 
     setSelectedDate(transport.date);
     setView("jour");
